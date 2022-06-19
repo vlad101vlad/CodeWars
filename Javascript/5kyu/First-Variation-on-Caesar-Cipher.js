@@ -36,14 +36,90 @@
 // and demovingShift(v, 1) returns u. #Ref:
 //
 // Caesar Cipher : http://en.wikipedia.org/wiki/Caesar_cipher
+const alphabetLength = 'z'.charCodeAt(0) - 'a'.charCodeAt(0) + 1;
 
-function movingShift(s, shift) {
-    return "";
+function isLetter(someLetter) {
+    return someLetter.toLowerCase() !== someLetter.toUpperCase();
 }
 
-function demovingShift(arr, shift) {
-    return "";
+function isUpper(someLetter) {
+    return someLetter.toUpperCase() === someLetter;
+}
+
+function getShiftPivot(someLetter) {
+    if (isUpper(someLetter)) {
+        return 'A';
+    }
+    return 'a';
+}
+
+function splitInto5(encodedMessage) {
+    fiveParts = [];
+    groupSize = encodedMessage.length % 5 === 0 ? Math.floor(encodedMessage.length / 5) : Math.floor(encodedMessage.length / 5) + 1;
+    for(i = 0; i < 5; i++) {
+        fiveParts.push(encodedMessage.slice(i*groupSize, (i+1)*groupSize))
+    }
+    return fiveParts;
+}
+
+function movingShift(toEncode, shift) {
+    toEncode = toEncode.split('');
+
+    encodedMessage = []
+    index = 0;
+    while (index < toEncode.length) {
+        currentCharacter = toEncode[index];
+
+        if (isLetter(currentCharacter)) {
+            pivot = getShiftPivot(currentCharacter).charCodeAt(0);
+
+            encodedCharacter = (currentCharacter.charCodeAt(0) - pivot + shift) % alphabetLength + pivot;
+            encodedMessage.push(encodedCharacter);
+        } else {
+            encodedMessage.push(currentCharacter.charCodeAt(0));
+        }
+        shift++;
+        index++;
+    }
+
+    encodedString = encodedMessage.map(codedCharacter => String.fromCharCode(codedCharacter)).join("");
+    return splitInto5(encodedString);
+}
+
+function demovingShift(encodedArray, shift) {
+    encodedString = encodedArray.join("");
+
+    decodedMessage = []
+    index = 0;
+    while (index < encodedString.length) {
+        currentCharacter = encodedString[index];
+
+        if (isLetter(currentCharacter)) {
+            pivot = getShiftPivot(currentCharacter).charCodeAt(0);
+
+            remainder = currentCharacter.charCodeAt(0) - pivot;
+            while(remainder - shift < 0) {
+                remainder += alphabetLength;
+            }
+
+            decodedCharacter = (remainder - shift) % alphabetLength + pivot;
+            decodedMessage.push(decodedCharacter);
+        } else {
+            decodedMessage.push(currentCharacter.charCodeAt(0));
+        }
+        shift++;
+        index++;
+    }
+
+    return decodedMessage.map(codedCharacter => String.fromCharCode(codedCharacter)).join("");
 }
 
 var u = "I should have known that you would have a perfect answer for me!!!"
-movingShift(u, 1)
+console.log(movingShift(u, 1));
+console.log(demovingShift(movingShift(u, 1), 1))
+    ss_string = [ 'Fxhvd kmlsdu',
+    'bb jysm ra kz',
+    'kf oifjz dc p',
+    'bkc r wcabbpd',
+    'nu usfj.' ].join('');
+console.log(splitInto5(ss_string))
