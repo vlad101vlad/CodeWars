@@ -74,7 +74,64 @@
 //     ["fox,bug,chicken,grass,sheep", "chicken eats bug", "fox eats chicken", "sheep eats grass", "fox eats sheep", "fox"]
 //
 
-var whoEatsWho = function(zoo) {
-    // Your code here
-    return [zoo, zoo]
+const keyEatsValue = {
+    "antelope": ["grass"],
+    "big-fish": ["little-fish"],
+    "bug": ["leaves"],
+    "bear": ["bug", "big-fish", "chicken", "cow", "leaves", "sheep"],
+    "chicken": ["bug"],
+    "cow": ["grass"],
+    "fox": ["chicken", "sheep"],
+    "grass": [],
+    "giraffe": ["leaves"],
+    "lion": ["antelope", "cow"],
+    "panda": ["leaves"],
+    "sheep": ["grass"]
 }
+
+
+function canEat(killer, prey) {
+    return keyEatsValue[killer].includes(prey);
+}
+
+function isKnownAnimal(animal) {
+    return Object.keys(keyEatsValue).includes(animal);
+}
+
+var whoEatsWho = function (zoo) {
+    initialZoo = [zoo];
+    eatingLog = []
+    zoo = zoo.split(',');
+
+    remainingAnimals = zoo.length;
+    currentIndex = 0;
+    while (remainingAnimals > 1 && currentIndex + 1 < remainingAnimals) {
+        currentAnimal = zoo[currentIndex];
+        nextAnimal = zoo[currentIndex + 1];
+
+        if(!isKnownAnimal(currentAnimal)) {
+            keyEatsValue[currentAnimal] = [];
+        }
+        if(!isKnownAnimal(nextAnimal)) {
+            keyEatsValue[nextAnimal] = [];
+        }
+
+        if (canEat(nextAnimal, currentAnimal)) {
+            zoo.splice(currentIndex, 1);
+            eatingLog.push(`${nextAnimal} eats ${currentAnimal}`);
+            currentIndex--;
+            remainingAnimals = zoo.length;
+        } else if (canEat(currentAnimal, nextAnimal)) {
+            zoo.splice(currentIndex + 1, 1);
+            eatingLog.push(`${currentAnimal} eats ${nextAnimal}`);
+            remainingAnimals = zoo.length;
+        } else {
+            currentIndex++;
+        }
+    }
+
+    return initialZoo.concat(eatingLog, zoo.join(','));
+}
+
+var input = 'bear,big-fish,lion,cow,bug,leaves';
+console.log(whoEatsWho(input))
